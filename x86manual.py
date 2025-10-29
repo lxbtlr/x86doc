@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 
 from pdfminer.layout import *
 import pdftable
@@ -65,8 +64,8 @@ def center_aligned_table(source):
 	for item in contents:
 		item_bounds = item.bounds()
 		if not pdftable.pretty_much_equal(item_bounds.y1(), last_y):
-			if any((len(c) == 0 for c in row)):
-				for i in xrange(0, len(column_centers)):
+			if any(len(c) == 0 for c in row):
+				for i in range(0, len(column_centers)):
 					table[-1][i] += row[i]
 			else: table.append(row)
 			row = [[]] * len(column_centers)
@@ -74,7 +73,7 @@ def center_aligned_table(source):
 		
 		col_index = None
 		min_dist = float("inf")
-		for i in xrange(0, len(column_centers)):
+		for i in range(0, len(column_centers)):
 			distance = abs(item_bounds.xmid() - column_centers[i])
 			if distance < min_dist:
 				min_dist = distance
@@ -82,8 +81,8 @@ def center_aligned_table(source):
 		
 		row[col_index] = [item]
 	
-	if any((len(c) == 0 for c in row)):
-		for i in xrange(0, len(column_centers)):
+	if any(len(c) == 0 for c in row):
+		for i in range(0, len(column_centers)):
 			table[-1][i] += row[i]
 	else: table.append(row)
 	
@@ -110,26 +109,26 @@ def left_aligned_table(source):
 	for item in contents:
 		item_bounds = item.bounds()
 		if not pdftable.pretty_much_equal(item_bounds.y1(), last_y):
-			if any((len(c) == 0 for c in row)):
-				for i in xrange(0, len(columns)):
+			if any(len(c) == 0 for c in row):
+				for i in range(0, len(columns)):
 					table[-1][i] += row[i]
 			else: table.append(row)
 			row = [[]] * len(columns)
 			last_y = item_bounds.y1()
 		
-		for i in xrange(0, len(columns)):
+		for i in range(0, len(columns)):
 			if pdftable.pretty_much_equal(item_bounds.x1(), columns[i]):
 				col_index = i
 				break
 		else:
-			print columns
-			print contents
+			print(columns)
+			print(contents)
 			raise Exception("No matching column!")
 		
 		row[col_index] = [item]
 	
-	if any((len(c) == 0 for c in row)):
-		for i in xrange(0, len(columns)):
+	if any(len(c) == 0 for c in row):
+		for i in range(0, len(columns)):
 			table[-1][i] += row[i]
 	else: table.append(row)
 	
@@ -184,13 +183,13 @@ class CharCollection(object):
 		return self.chars[0].matrix[0] if len(self.chars) != 0 else 0
 	
 	def __str__(self):
-		uni = u"".join([c.get_text() for c in self.chars])
+		uni = "".join([c.get_text() for c in self.chars])
 		if len(uni) > 0 and uni[-1] != "-" and uni[-1] != "/":
 			uni += " "
 		return uni
 	
 	def __repr__(self):
-		return u"<%r text=%r>" % (self.rect, unicode(self))
+		return "<%r text=%r>" % (self.rect, str(self))
 
 class FontStyle(object):
 	def __init__(self, char):
@@ -233,7 +232,7 @@ class x86ManParser(object):
 		try:
 			displayable = self.__prepare_display()
 		except:
-			print "Failed to prepare for %s" % unicode(self.textLines[0])
+			print(("Failed to prepare for %s" % str(self.textLines[0])))
 			raise
 		
 		self.__output_file(displayable)
@@ -259,7 +258,7 @@ class x86ManParser(object):
 							self.flush()
 							self.success += 1
 						except:
-							print "*** couldn't flush to disk"
+							print("*** couldn't flush to disk")
 							self.fail += 1
 					
 					self.ltRects = []
@@ -342,21 +341,21 @@ class x86ManParser(object):
 		return merged
 	
 	def __output_file(self, displayable):
-		title_parts = [p.strip() for p in re.split(u"\s*[-—]\s*", unicode(displayable[0]), 1)]
+		title_parts = [p.strip() for p in re.split(r"\s*[-—]\s*", str(displayable[0]), 1)]
 		if len(title_parts) != 2:
-			print displayable[0].font_size(), unicode(displayable[0:5])
-			print title_parts
+			print((displayable[0].font_size(), str(displayable[0:5])))
+			print(title_parts)
 			raise Exception("Can't decode title")
 		
 		title = title_parts[0]
 		path = "%s/%s.html" % (self.outputDir, title.replace("/", ":"))
-		print "Writing to %s" % path
+		print(("Writing to %s" % path))
 		file_data = self.__output_page(displayable).encode("UTF-8")
 		with open(path, "w") as fd:
 			fd.write(file_data)
 	
 	def __output_page(self, displayable):
-		title = unicode(displayable[0])
+		title = str(displayable[0])
 		result = [""]
 		text = HtmlText()
 		text.append(OpenTag("html"))
@@ -378,7 +377,7 @@ class x86ManParser(object):
 		if isinstance(element, list):
 			result = HtmlText()
 			for e in element:
-				result.append(unicode(e))
+				result.append(str(e))
 			return result
 		
 		if isinstance(element, CharCollection):
@@ -386,7 +385,7 @@ class x86ManParser(object):
 			if result.tokens[0].tag[0] == "h":
 				level = int(result.tokens[0].tag[1]) - 1
 				self.__title_stack = self.__title_stack[0:level]
-				self.__title_stack.append(u"".join((c for c in result.tokens[1:-1] if isinstance(c, unicode))).strip().lower())
+				self.__title_stack.append("".join(c for c in result.tokens[1:-1] if isinstance(c, str)).strip().lower())
 			return result
 		
 		if isinstance(element, pdftable.List):
@@ -444,9 +443,9 @@ class x86ManParser(object):
 						attributes["class"] = "exception-table"
 			
 			result.append(OpenTag("table", attributes=attributes))
-			for row in xrange(0, element.rows()):
+			for row in range(0, element.rows()):
 				result.append(OpenTag("tr"))
-				for col in xrange(0, element.columns()):
+				for col in range(0, element.columns()):
 					index = element.data_index(col, row)
 					if index <= print_index: continue
 					index = print_index
@@ -496,7 +495,7 @@ class x86ManParser(object):
 			attributes["textLength"] = self_bounds.width()
 			attributes["lengthAdjust"] = "spacingAndGlyphs"
 			result.append(OpenTag("text", attributes=attributes))
-			result.append(unicode(element).strip())
+			result.append(str(element).strip())
 			result.append(CloseTag("text"))
 			return result
 		
@@ -517,7 +516,7 @@ class x86ManParser(object):
 			result.append(CloseTag("path"))
 			return result
 		
-		print element.__class__.__name__
+		print((element.__class__.__name__))
 		assert False
 		return result
 	
@@ -603,12 +602,12 @@ class x86ManParser(object):
 		for table in frames:
 			orphans = []
 			bounds = table.bounds()
-			for i in xrange(0, len(textLines)):
+			for i in range(0, len(textLines)):
 				line = textLines[i]
 				if bounds.contains(line.bounds()):
 					# Some pages have their "NOTES" section embedded inside the
 					# table rectangle. What were you thinking, Intel?
-					if line.font_name() == "NeoSansIntelMedium" and unicode(line).lower().startswith("notes"):
+					if line.font_name() == "NeoSansIntelMedium" and str(line).lower().startswith("notes"):
 						orphans += textLines[i:]
 						break
 					table.get_at_pixel(line.rect.xmid(), line.rect.ymid()).append(line)
@@ -625,7 +624,7 @@ class x86ManParser(object):
 		for line in textLines:
 			if line.font_name() == "NeoSansIntelMedium":
 				orphans.append(line)
-				title = unicode(line).strip().lower()
+				title = str(line).strip().lower()
 				if title[-10:] == "exceptions":
 					is_table_section = True
 					expected_format = exceptions_format__
@@ -640,7 +639,7 @@ class x86ManParser(object):
 			if is_table_section:
 				if line.bounds().x1() > 50:
 					table_data.append(line)
-				elif expected_format.search(unicode(line)) == None:
+				elif expected_format.search(str(line)) == None:
 					orphans.append(line)
 					if len(table_data) > 0:
 						tables.append(SingleCellTable(table_data))
@@ -708,12 +707,12 @@ class x86ManParser(object):
 		i = 0
 		while i < len(textLines):
 			line = textLines[i]
-			if line.chars[0].get_text() == u"•":
+			if line.chars[0].get_text() == "•":
 				if len(line.chars) == 1:
 					i += 1
 					line = textLines[i]
 				else:
-					for j in xrange(1, len(line.chars)):
+					for j in range(1, len(line.chars)):
 						if not line.chars[j].get_text().isspace(): break
 					line.chars = line.chars[j:]
 				this_list.append(line)

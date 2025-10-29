@@ -28,12 +28,14 @@
                 #pandas
                 pdfminer-six
                 numpy
+                pyupgrade
                 #matplotlib
                 #pytest
                 #scipy
                 #scikit-learn
               ]))
               #clblas
+              openssl
               virtualenv
               md2pdf
               gcc

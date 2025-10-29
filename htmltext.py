@@ -1,5 +1,4 @@
 #!/bin/env python
-# -*- coding: UTF-8 -*-
 
 # OpenTag and CloseTag are NOT HARDENED against HTML injection!
 # Do not use them for input that you cannot perfectly predict.
@@ -21,7 +20,7 @@ class OpenTag(object):
 			return ""
 		result = ""
 		for key in self.attributes:
-			result += ' %s="%s"' % (key, unicode(self.attributes[key]).replace("&", "&amp;").replace('"', '&quot;'))
+			result += ' %s="%s"' % (key, str(self.attributes[key]).replace("&", "&amp;").replace('"', '&quot;'))
 		return result
 	
 	def open(self):
@@ -51,8 +50,8 @@ class HtmlText(object):
 			if self.__is_open(t) and not t.self_closes: close_stack.append(t)
 			elif self.__is_close(t):
 				if not (close_stack[-1].tag == t.tag):
-					print close_stack
-					print self.tokens
+					print(close_stack)
+					print((self.tokens))
 					raise Exception("autoclose mismatch")
 				close_stack.pop()
 		
@@ -67,10 +66,10 @@ class HtmlText(object):
 					prev.closed_by = token
 					break
 			else:
-				print self.tokens
+				print((self.tokens))
 				raise Exception("No matching OpenTag for %s found!" % token.tag)
 		elif len(self.tokens) > 0 and self.__is_open(token):
-			for i in xrange(-1, -len(self.tokens), -1):
+			for i in range(-1, -len(self.tokens), -1):
 				last = self.tokens[i]
 				is_close = self.__is_close(last)
 				if not (is_close or self.__is_open(last)):
@@ -101,7 +100,7 @@ class HtmlText(object):
 	
 	def to_html(self):
 		tag_stack = []
-		result = u""
+		result = ""
 		for token in self.tokens:
 			if isinstance(token, OpenTag):
 				if not token.self_closes:
@@ -120,7 +119,7 @@ class HtmlText(object):
 					tag_stack.append(tag)
 					result += tag.open()
 			else:
-				uni = unicode(token)
+				uni = str(token)
 				for pair in [("&", "&amp;"), ("<", "&lt;"), (">", "&gt;")]:
 					uni = uni.replace(pair[0], pair[1])
 				result += uni

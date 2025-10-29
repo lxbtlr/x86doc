@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 
-class Rect(object):
+class Rect:
 	def __init__(self, x1, y1, x2, y2):
 		self.__x1 = x1
 		self.__x2 = x2
@@ -30,7 +29,7 @@ class Rect(object):
 	
 	def __repr__(self):
 		orientation = "V" if self.vertical() else "H"
-		return "Rect%s(%0.2f,%0.2f,%0.2f,%0.2f)" % (orientation, self.x1(), self.y1(), self.x2(), self.y2())
+		return "Rect{}({:0.2f},{:0.2f},{:0.2f},{:0.2f})".format(orientation, self.x1(), self.y1(), self.x2(), self.y2())
 	
 	def intersects(self, that, threshold = 2):
 		if self.x1() - that.x2() - threshold > 0:
@@ -96,7 +95,7 @@ def count_segments(list, expected_clusters):
 def pretty_much_equal(a, b, threshold = 2):
 	return abs(a - b) < threshold
 
-class Curve(object):
+class Curve:
 	def __init__(self, points):
 		assert len(points) > 1
 		x = [float("inf"), float("-inf")]
@@ -111,7 +110,7 @@ class Curve(object):
 	
 	def bounds(self): return self.__bounds
 
-class List(object):
+class List:
 	def __init__(self, items):
 		assert len(items) > 0
 		self.items = items
@@ -121,7 +120,7 @@ class List(object):
 	
 	def bounds(self): return self.rect
 
-class TableBase(object):
+class TableBase:
 	def get_at(self, x, y): raise Exception("Not implemented")
 	def get_everything(self): raise Exception("Not implemented")
 	def rows(self): raise Exception("Not implemented")
@@ -172,7 +171,7 @@ class ImplicitTable(TableBase):
 			for cell in row:
 				result += '<td>'
 				for element in ell:
-					result += unicode(element).replace("<", "&lt;").replace(">", "&gt;")
+					result += str(element).replace("<", "&lt;").replace(">", "&gt;")
 				result += '</td>'
 			result += '</tr>'
 		result += '</table>'
@@ -201,7 +200,7 @@ class Table(TableBase):
 				leftColumn = rightColumn - 1
 				beginIndex = self.__data_row_index(missing.y1())
 				endIndex = self.__data_row_index(missing.y2())
-				for i in xrange(beginIndex, endIndex):
+				for i in range(beginIndex, endIndex):
 					self.__data_layout[i][rightColumn] = self.__data_layout[i][leftColumn]
 		
 		if len(self.__rows) > 2:
@@ -225,7 +224,7 @@ class Table(TableBase):
 					if self.__data_layout[topRow][prev] == self.__data_layout[topRow][endIndex]:
 						continue
 			
-				for i in xrange(beginIndex, endIndex):
+				for i in range(beginIndex, endIndex):
 					self.__data_layout[bottomRow][i] = self.__data_layout[topRow][i]
 		
 		self.__init_data_storage()
@@ -267,18 +266,18 @@ class Table(TableBase):
 	def debug_html(self):
 		result = '<table border="1">'
 		print_index = -1
-		for row_index in xrange(0, self.rows()):
+		for row_index in range(0, self.rows()):
 			row = self.__data_layout[row_index]
 			result += "<tr>"
-			for cell_index in xrange(0, len(row)):
+			for cell_index in range(0, len(row)):
 				cell = row[cell_index]
 				if print_index >= cell: continue
 				width, height = self.cell_size(cell_index, row_index)
 				colspan = (' colspan="%i"' % width) if width != 1 else ""
 				rowspan = (' rowspan="%i"' % height) if height != 1 else ""
-				result += "<td%s%s>" % (colspan, rowspan)
+				result += "<td{}{}>".format(colspan, rowspan)
 				for element in self.get_at(cell_index, row_index):
-					result += unicode(element).replace("<", "&lt;").replace(">", "&gt;")
+					result += str(element).replace("<", "&lt;").replace(">", "&gt;")
 				result += "</td>"
 				print_index = cell
 			result += "</tr>"
@@ -345,9 +344,9 @@ class Table(TableBase):
 		i = 0
 		row_count = len(self.__rows) - 1
 		col_count = len(self.__columns) - 1
-		for _ in xrange(0, row_count):
+		for _ in range(0, row_count):
 			row = []
-			for _ in xrange(0, col_count):
+			for _ in range(0, col_count):
 				row.append(i)
 				i += 1
 			self.__data_layout.append(row)
@@ -355,16 +354,16 @@ class Table(TableBase):
 	def __init_data_storage(self):
 		i = 0
 		last_index = 0
-		for row_index in xrange(0, len(self.__data_layout)):
+		for row_index in range(0, len(self.__data_layout)):
 			row = self.__data_layout[row_index]
-			for cell_index in xrange(0, len(row)):
+			for cell_index in range(0, len(row)):
 				if row[cell_index] > last_index:
 					i += 1
 					last_index = row[cell_index]
 				row[cell_index] = i
 		
 		self.__data_storage = []
-		for i in xrange(0, self.__data_layout[-1][-1] + 1):
+		for i in range(0, self.__data_layout[-1][-1] + 1):
 			self.__data_storage.append([])
 	
 	def __data_row_index(self, y):
@@ -374,12 +373,12 @@ class Table(TableBase):
 		return self.__dim_index(self.__columns, x)
 	
 	def __dim_index(self, array, value):
-		for i in xrange(1, len(array)):
+		for i in range(1, len(array)):
 			ref_value = array[i]
 			if ref_value > value:
 				return i - 1
 		
-		raise Exception("improbable (%g between %g and %g)" % (value, array[0], array[-1]))
+		raise Exception("improbable ({:g} between {:g} and {:g})".format(value, array[0], array[-1]))
 	
 	def __cell_size(self, column, row):
 		value = self.__data_layout[row][column]
@@ -474,7 +473,7 @@ def main():
 	lines = []
 	figures = []
 	tables = []
-	for i in xrange(0, len(rects)):
+	for i in range(0, len(rects)):
 		rect = Rect(*rects[i])
 		(lines if (rect.width() < 9 or rect.height() < 9) else figures).append(rect)
 
@@ -485,7 +484,7 @@ def main():
 
 	for table in tables:
 		t = Table(table)
-		print
+		print()
 
 if __name__ == "__main__":
 	main()
